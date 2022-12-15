@@ -1,0 +1,42 @@
+[tool.black]
+line-length = 100
+target-version = ['py39']
+
+[tool.pylint]
+max-line-length = 100
+disable = ["C0114", "C0116"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "docgpt"
+version = "0.1.0"
+description = "Auto-generate documentation for code."
+readme = "README.md"
+authors = [
+  { name = "Amir Abdi" },
+]
+
+license = { file = "LICENSE" }
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "openai>=0.25.0,<1.0",
+    "jsonargparse[signatures]",
+]
+
+[project.urls]
+Homepage = "https://github.com/amir-abdi/docgpt"
+Documentation = "https://github.com/amir-abdi/docgpt"
+"Bug Tracker" = "https://github.com/amir-abdi/docgpt/issues"
+Discussions = "https://github.com/amir-abdi/docgpt/issues"
+Changelog = "https://github.com/amir-abdi/docgpt/blob/main/CHANGELOG.md"
+
+[project.scripts]
+docgpt = "docgpt.main:cli"
