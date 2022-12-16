@@ -141,7 +141,7 @@ def get_source_code(source: Optional[str]) -> tuple[str, str]:
                     "Current version of DocGPT does not support directory inputs. "
                     "If you need the feature to recursively convert all python files in a "
                     "directory, please submit an issue: "
-                    "https://github.com/amir-abdi/DocGPT/issues"
+                    "https://github.com/amir-abdi/docgpt/issues"
                 )
                 return "", ""
 
