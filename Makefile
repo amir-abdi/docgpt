@@ -5,11 +5,11 @@ black-check:
 	black --check .
 
 mypy:
-	mypy pydoc_gpt
+	mypy docgpt
 
 pylint:
-	pylint pydoc_gpt
+	pylint docgpt
 
-test:
+pytest:
 	pytest .
 

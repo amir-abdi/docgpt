@@ -1,4 +1,4 @@
-from pydoc_gpt import main
+from docgpt import main
 import os
 
 
@@ -19,10 +19,10 @@ def test_get_target():
 
 def test_get_source_code():
     source_code, source_path = main.get_source_code(
-        source=os.path.join(os.curdir, "pydoc_gpt/main.py")
+        source=os.path.join(os.curdir, "docgpt/main.py")
     )
     assert len(source_code) > 100
-    assert source_path == "./pydoc_gpt/main.py"
+    assert source_path == "./docgpt/main.py"
 
 
 def test_estimate_tokens():

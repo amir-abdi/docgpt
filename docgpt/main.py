@@ -13,7 +13,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 # path constants
-DEFAULT_TARGET_APPEND = "pydoced.py"
+DEFAULT_TARGET_APPEND = "docgpt.py"
 CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".docgpt")
 KEY_FILE_PATH = os.path.join(CONFIG_DIR, "OAI_KEY")
 
@@ -42,13 +42,18 @@ def get_api_key(input_api_key: Optional[str]) -> str:
             if api_key:
                 return api_key
 
+    print_warning("OpenAI API Key: ", end="")
+    user_api_key: str = input()
+    if user_api_key:
+        return user_api_key
+
     print_error(
-        "OpenAI API Key as not found. Please set the 'OPENAI_API_KEY' environment variable",
+        "OpenAI API Key as not found. Please set the 'OPENAI_API_KEY' environment variable.",
     )
     return ""
 
 
-def get_user_yes_no_input() -> bool:
+def get_user_yes_no_input() -> bool:  # pragma: no cover
     user_input = input()
     if user_input.lower() not in ("y", "yes", None, "", " "):
         return True
@@ -74,10 +79,10 @@ def cache_api_key(key_to_cache: str):
         file.write(key_to_cache)
 
 
-def get_prompt(source_code: str):
+def get_prompt(source_code: str):  # pragma: no cover
     return dedent(
         f'''
-    Please add comments and one-liner docstrings to the following Python script to help explain
+    Add comments and one-liner docstrings to the following Python script to help explain
     what each line of code is doing and how it contributes to the overall function of the program.
 
     {S_TAG}
@@ -160,8 +165,9 @@ def get_source_code(source: Optional[str]) -> tuple[str, str]:
     print_error("No source provided.")
     print_warning(
         "You can pass the source code in 3 ways:\n"
-        ">> docgpt --source <file.py>\n"
-        ">> cat <file.py> | docgpt",
+        ">> docgpt --source <source.py>\n"
+        ">> docgpt <source.py>\n"
+        ">> cat <source.py> | docgpt",
     )
     return "", ""
 
@@ -171,16 +177,16 @@ def code_to_chars(code):
     return csi + str(code) + "m"
 
 
-def print_warning(msg: str):
+def print_warning(msg: str, end: Optional[str] = None):
     yellow = code_to_chars(33)
     reset = code_to_chars(0)
-    print(f"{yellow}{msg}{reset}")
+    print(f"{yellow}{msg}{reset}", end=end)
 
 
-def print_error(msg: str):
+def print_error(msg: str, end: Optional[str] = None):
     red = code_to_chars(31)
     reset = code_to_chars(0)
-    print(f"{red}{msg}{reset}")
+    print(f"{red}{msg}{reset}", end=end)
 
 
 def get_target(source_path: str, overwrite: bool, target: Optional[str]):
@@ -191,6 +197,7 @@ def get_target(source_path: str, overwrite: bool, target: Optional[str]):
     # Get `target_path` from the `source_path`
     if not target:
         target_path = f"{os.path.splitext(source_path)[0]}_{DEFAULT_TARGET_APPEND}"
+        print_warning(f"No '--target' specified; will store the documented file at '{target_path}'")
 
     # `target_path` is given by the user
     else:
@@ -202,7 +209,7 @@ def get_target(source_path: str, overwrite: bool, target: Optional[str]):
     return target_path
 
 
-def validate_args(source, target, overwrite) -> bool:
+def validate_args(source: Optional[str], target: Optional[str], overwrite: bool) -> bool:
     if overwrite and source is None:
         print_error("The '--source' flag is required when '--overwrite' flag is used.")
         return False
@@ -252,19 +259,20 @@ def validate_prompt_length(estimated_tokens: int) -> bool:
             (
                 f"Your file is too big. It contains around {estimated_tokens} which is more than "
                 f"half the model's context length ({MAX_CONTEXT_LENGTH}). "
-                f"Not enough context space left for completion (adding docstrings and comments). "
+                f"Not enough context space left for auto-documentation. "
                 f"Please partition the file into smaller chunks and try each separately."
             ),
         )
         return False
     return True
 
+
 def main(
-        source: Optional[str] = None,
-        target: Optional[str] = None,
-        api_key: Optional[str] = None,
-        overwrite: bool = False,
-) -> int:
+    source: Optional[str] = None,
+    target: Optional[str] = None,
+    api_key: Optional[str] = None,
+    overwrite: bool = False,
+) -> int:  # pragma: no cover
     """DocGPT is a CLI tool to automatically document Python source code.
 
     Args:
@@ -298,7 +306,7 @@ def main(
 
     with open(target_path, mode="w", encoding="utf-8") as file:
         file.write(completed_text)
-    print(f"Commented script exported: {target_path}")
+    print(f"Documented source code exported: {target_path}")
     return 0
 
 
