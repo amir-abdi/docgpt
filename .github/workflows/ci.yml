@@ -14,10 +14,10 @@ jobs:
     - name: Set up Python environment
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.9
     - name: Install dependencies
       run: |
-        conda env create -f env.yml
+        conda env create -f env.yaml
         conda activate docgpt
     - name: linting
       run: |
