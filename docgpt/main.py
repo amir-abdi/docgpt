@@ -9,6 +9,8 @@ from typing import Optional
 import openai
 from jsonargparse import CLI
 
+from docgpt.stdout import wlf, print_warning, print_error
+
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
@@ -48,7 +50,9 @@ def get_api_key(input_api_key: Optional[str]) -> str:
         return user_api_key
 
     print_error(
-        "OpenAI API Key as not found. Please set the 'OPENAI_API_KEY' environment variable.",
+        "OpenAI API Key as not found.\n"
+        "Get API Key from OpenAI here: https://openai.com/api/\n"
+        "and set the 'OPENAI_API_KEY' environment variable or use the '--api_key' flag.",
     )
     return ""
 
@@ -172,23 +176,6 @@ def get_source_code(source: Optional[str]) -> tuple[str, str]:
     return "", ""
 
 
-def code_to_chars(code):
-    csi = "\033["
-    return csi + str(code) + "m"
-
-
-def print_warning(msg: str, end: Optional[str] = None):
-    yellow = code_to_chars(33)
-    reset = code_to_chars(0)
-    print(f"{yellow}{msg}{reset}", end=end)
-
-
-def print_error(msg: str, end: Optional[str] = None):
-    red = code_to_chars(31)
-    reset = code_to_chars(0)
-    print(f"{red}{msg}{reset}", end=end)
-
-
 def get_target(source_path: str, overwrite: bool, target: Optional[str]):
     # overwrite the source file
     if overwrite:
@@ -281,6 +268,8 @@ def main(
         api_key: OpenAI API key.
         overwrite: whether to overwrite the source file.
     """
+    print(wlf())
+
     # Set API Key
     api_key = get_api_key(api_key)
     if not api_key:
