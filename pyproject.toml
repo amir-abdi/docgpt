@@ -28,12 +28,15 @@ classifiers = [
 ]
 dependencies = [
     "openai>=0.25.0,<1.0",
-    "jsonargparse[signatures]>=4.0,<5.0"
+    "jsonargparse[signatures]",
 ]
 
 [project.urls]
-Homepage = "https://github.com/amir-abdi/DocGPT"
-Documentation = "https://github.com/amir-abdi/DocGPT"
-"Bug Tracker" = "https://github.com/amir-abdi/DocGPT/issues"
-Discussions = "https://github.com/amir-abdi/DocGPT/issues"
-Changelog = "https://github.com/amir-abdi/DocGPT/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/amir-abdi/docgpt"
+Documentation = "https://github.com/amir-abdi/docgpt"
+"Bug Tracker" = "https://github.com/amir-abdi/docgpt/issues"
+Discussions = "https://github.com/amir-abdi/docgpt/issues"
+Changelog = "https://github.com/amir-abdi/docgpt/blob/main/CHANGELOG.md"
+
+[project.scripts]
+docgpt = "docgpt.main:cli"

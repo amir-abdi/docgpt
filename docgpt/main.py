@@ -4,7 +4,7 @@ import os
 import re
 import sys
 from textwrap import dedent
-from typing import Optional
+from typing import Optional, Tuple
 
 import openai
 from jsonargparse import CLI
@@ -127,7 +127,7 @@ def estimate_num_tokens(prompt: str) -> int:
     return int(len(tokens) * TOKEN_ESTIMATE_COEFF)
 
 
-def get_source_code(source: Optional[str]) -> tuple[str, str]:
+def get_source_code(source: Optional[str]) -> Tuple[str, str]:
     if source is not None:
 
         # source = path to file
@@ -141,7 +141,7 @@ def get_source_code(source: Optional[str]) -> tuple[str, str]:
                     "Current version of DocGPT does not support directory inputs. "
                     "If you need the feature to recursively convert all python files in a "
                     "directory, please submit an issue: "
-                    "https://github.com/amir-abdi/DocGPT/issues"
+                    "https://github.com/amir-abdi/docgpt/issues"
                 )
                 return "", ""
 
@@ -288,12 +288,13 @@ def main(
     cache_api_key(api_key)
     openai.api_key = api_key
 
-    if not validate_args(source, target, overwrite):
-        return 1
-
     source_code, source_path = get_source_code(source)
     if not source_code:
         return 1
+
+    if not validate_args(source, target, overwrite):
+        return 1
+
     target_path = get_target(source_path=source_path, overwrite=overwrite, target=target)
 
     prompt = get_prompt(source_code)
@@ -310,10 +311,14 @@ def main(
     return 0
 
 
-if __name__ == "__main__":
+def cli():
     if len(sys.argv) >= 2:
         if not sys.argv[1].startswith("--"):
             new_argv = ["--source"] + sys.argv[1:]
             sys.exit(CLI(main, args=new_argv))
 
     sys.exit(CLI(main))
+
+
+if __name__ == "__main__":
+    cli()
