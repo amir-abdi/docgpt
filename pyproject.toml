@@ -28,7 +28,7 @@ classifiers = [
 ]
 dependencies = [
     "openai>=0.25.0,<1.0",
-    "jsonargparse[signatures]"
+    "jsonargparse[signatures]",
 ]
 
 [project.urls]
