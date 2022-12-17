@@ -12,7 +12,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "docgpt"
-version = "0.1.0"
+version = "0.1.4"
 description = "Auto-generate documentation for code."
 readme = "README.md"
 authors = [
@@ -28,7 +28,7 @@ classifiers = [
 ]
 dependencies = [
     "openai>=0.25.0,<1.0",
-    "jsonargparse[signatures]>=4.0,<5.0"
+    "jsonargparse[signatures]"
 ]
 
 [project.urls]
@@ -37,3 +37,6 @@ Documentation = "https://github.com/amir-abdi/docgpt"
 "Bug Tracker" = "https://github.com/amir-abdi/docgpt/issues"
 Discussions = "https://github.com/amir-abdi/docgpt/issues"
 Changelog = "https://github.com/amir-abdi/docgpt/blob/main/CHANGELOG.md"
+
+[project.scripts]
+docgpt = "docgpt.main:cli"
