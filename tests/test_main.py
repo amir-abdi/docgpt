@@ -1,5 +1,6 @@
-from docgpt import main
 import os
+
+from docgpt import main
 
 
 def test_get_target():
@@ -23,8 +24,3 @@ def test_get_source_code():
     )
     assert len(source_code) > 100
     assert source_path == "./docgpt/main.py"
-
-
-def test_estimate_tokens():
-    # this, ' ', is, /, a, +, 4
-    assert main.estimate_num_tokens("this is/a+4") == int(7 * main.TOKEN_ESTIMATE_COEFF)

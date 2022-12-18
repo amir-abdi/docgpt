@@ -13,3 +13,4 @@ pylint:
 pytest:
 	pytest .
 
+all: black-check mypy pylint pylint pytest
