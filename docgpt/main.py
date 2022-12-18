@@ -1,137 +1,21 @@
 import fileinput
-import logging
 import os
-import re
 import sys
-from textwrap import dedent
 from typing import Optional, Tuple
 
 import openai
 from jsonargparse import CLI
 
-from docgpt.stdout import wlf, print_warning, print_error
+from docgpt import model
+from docgpt.api_key import cache_api_key, get_api_key
+from docgpt.io import print_error, print_warning, wlf
 
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-
-# path constants
 DEFAULT_TARGET_APPEND = "docgpt.py"
-CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".docgpt")
-KEY_FILE_PATH = os.path.join(CONFIG_DIR, "OAI_KEY")
-
-# prompt constants
-S_TAG = "<script>"
-ENDS_TAG = "</script>"
 MIN_SOURCE_LENGTH = 40
-MAX_PROMPT_LENGTH_THRESHOLD = 1800
-TOKEN_ESTIMATE_COEFF = 1.27
-
-# Model constants
-MAX_CONTEXT_LENGTH = 4097
-MODEL = "text-davinci-003"
-
-
-def get_api_key(input_api_key: Optional[str]) -> str:
-    if input_api_key:
-        return input_api_key
-
-    if os.environ.get("OPENAI_API_KEY"):
-        return os.environ["OPENAI_API_KEY"]
-
-    if KEY_FILE_PATH:
-        with open(KEY_FILE_PATH, mode="r", encoding="utf-8") as file:
-            api_key = file.read()
-            if api_key:
-                return api_key
-
-    print_warning("OpenAI API Key: ", end="")
-    user_api_key: str = input()
-    if user_api_key:
-        return user_api_key
-
-    print_error(
-        "OpenAI API Key as not found.\n"
-        "Get API Key from OpenAI here: https://openai.com/api/\n"
-        "and set the 'OPENAI_API_KEY' environment variable or use the '--api_key' flag.",
-    )
-    return ""
-
-
-def get_user_yes_no_input() -> bool:  # pragma: no cover
-    user_input = input()
-    if user_input.lower() not in ("y", "yes", None, "", " "):
-        return True
-    return False
-
-
-def cache_api_key(key_to_cache: str):
-    if not key_to_cache:
-        return
-
-    if os.path.exists(KEY_FILE_PATH):
-        with open(KEY_FILE_PATH, mode="r", encoding="utf-8") as file:
-            old_key = file.read()
-        if old_key == key_to_cache:
-            return
-
-        print("Do you want to replace the cached OpenAI API Key? ([Y]es/[N]o) [Yes]")
-        if get_user_yes_no_input():
-            return
-
-    os.makedirs(CONFIG_DIR, exist_ok=True)
-    with open(KEY_FILE_PATH, mode="w", encoding="utf-8") as file:
-        file.write(key_to_cache)
-
-
-def get_prompt(source_code: str):  # pragma: no cover
-    return dedent(
-        f'''
-    Add comments and one-liner docstrings to the following Python script to help explain
-    what each line of code is doing and how it contributes to the overall function of the program.
-
-    {S_TAG}
-    def permute_batch(z):
-        assert z.dim() == 2
-        B, _ = z.size()
-
-        perm_idx = torch.randperm(B)
-        permuted_z = z[perm_idx, :]
-
-        return permuted_z, perm_idx
-    {ENDS_TAG}
-
-    The updated script is:
-    {S_TAG}
-    def permute_batch(z):
-        """Permute the samples in the given batch across the first dimension."""
-        assert z.dim() == 2
-        B, _ = z.size()
-
-        # Randomly permute z
-        perm_idx = torch.randperm(B)
-        permuted_z = z[perm_idx, :]
-
-        # return the permuted tensor and the permutation index
-        return permuted_z, perm_idx
-    {ENDS_TAG}
-
-    {S_TAG}
-    {source_code}
-    {ENDS_TAG}
-
-    The updated script is:
-    {S_TAG}
-
-    '''
-    )
-
-
-def estimate_num_tokens(prompt: str) -> int:
-    tokens = re.split(r"([\W_]+)", prompt)
-    return int(len(tokens) * TOKEN_ESTIMATE_COEFF)
 
 
 def get_source_code(source: Optional[str]) -> Tuple[str, str]:
+    """Get the source code from the given path or from stdin."""
     if source is not None:
 
         # source = path to file
@@ -177,6 +61,7 @@ def get_source_code(source: Optional[str]) -> Tuple[str, str]:
 
 
 def get_target(source_path: str, overwrite: bool, target: Optional[str]):
+    """Get the target path for the documented source code."""
     # overwrite the source file
     if overwrite:
         return source_path
@@ -190,6 +75,7 @@ def get_target(source_path: str, overwrite: bool, target: Optional[str]):
     else:
         target_path = target
 
+    # Append .py to the target path if it is not already present
     if not target_path.endswith(".py"):
         target_path += ".py"
 
@@ -197,60 +83,20 @@ def get_target(source_path: str, overwrite: bool, target: Optional[str]):
 
 
 def validate_args(source: Optional[str], target: Optional[str], overwrite: bool) -> bool:
+    """Validate the given arguments."""
+    # Check if overwrite flag is used and source is not specified
     if overwrite and source is None:
         print_error("The '--source' flag is required when '--overwrite' flag is used.")
         return False
 
+    # Check if source and target are not specified
     if source is None and target is None:
         print_error(
             "In absence of '--source', please specify where you wish to export via '--target' flag."
         )
         return False
 
-    return True
-
-
-def invoke_oai_model(prompt: str, estimated_tokens: int):
-    completions = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=MAX_CONTEXT_LENGTH - estimated_tokens,
-        temperature=0.0,
-        top_p=0.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0,
-        stop=ENDS_TAG,
-    )
-
-    completed_text = completions.choices[0].text
-    if completions.usage.total_tokens > MAX_CONTEXT_LENGTH - 10:
-        print_warning(
-            "Model ran out of token space (reached max Context Length). "
-            "The output file is probably missing some lines. "
-            "Please chunk the source code into multiple files and retry ach separately."
-        )
-
-    logger.debug(completions.choices[0].text)
-    logger.debug(completed_text)
-
-    # Cleanup completion and add blank line end of file
-    completed_text = completed_text.strip()
-    completed_text += "\n"
-
-    return completed_text
-
-
-def validate_prompt_length(estimated_tokens: int) -> bool:
-    if estimated_tokens > MAX_PROMPT_LENGTH_THRESHOLD:
-        print_warning(
-            (
-                f"Your file is too big. It contains around {estimated_tokens} which is more than "
-                f"half the model's context length ({MAX_CONTEXT_LENGTH}). "
-                f"Not enough context space left for auto-documentation. "
-                f"Please partition the file into smaller chunks and try each separately."
-            ),
-        )
-        return False
+    # Return true if all arguments are valid
     return True
 
 
@@ -281,19 +127,23 @@ def main(
     if not source_code:
         return 1
 
+    # Get prompt from source code
+    prompt = model.get_prompt(source_code)
+    estimated_tokens = model.estimate_num_tokens(prompt)
+    if not model.validate_prompt_length(estimated_tokens):
+        return 1
+
     if not validate_args(source, target, overwrite):
         return 1
 
+    # Get target path for output
     target_path = get_target(source_path=source_path, overwrite=overwrite, target=target)
 
-    prompt = get_prompt(source_code)
-    estimated_tokens = estimate_num_tokens(prompt)
-    if not validate_prompt_length(estimated_tokens):
-        return 1
-
+    # Invoke GPT-3 to generate documentation
     print("Waiting for GPT3 to respond...")
-    completed_text = invoke_oai_model(prompt, estimated_tokens)
+    completed_text = model.invoke(prompt, estimated_tokens)
 
+    # Write output to target path
     with open(target_path, mode="w", encoding="utf-8") as file:
         file.write(completed_text)
     print(f"Documented source code exported: {target_path}")
@@ -301,6 +151,7 @@ def main(
 
 
 def cli():
+    """Command line interface for docgpt."""
     if len(sys.argv) >= 2:
         if not sys.argv[1].startswith("--"):
             new_argv = ["--source"] + sys.argv[1:]
