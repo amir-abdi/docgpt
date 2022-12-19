@@ -1,5 +1,5 @@
 <div align="center">
-<img src="assets/wlf.webp" width="400"/>
+<img src="https://raw.githubusercontent.com/amir-abdi/docgpt/main/assets/wlf.webp" width="400"/>
 
 **Timeline of Events:** https://irantimelines.com/  
 Read wiki: https://en.wikipedia.org/wiki/Mahsa_Amini_protests   
@@ -24,8 +24,8 @@ So meta!
 
 
 <p align="center">
-      <img src="assets/img_resize.gif" align="="left" width=49%>
-      <img src="assets/sorts.gif" align="="right" width=49%>
+      <img src="https://raw.githubusercontent.com/amir-abdi/docgpt/main/assets/img_resize.gif" align="="left" width=49%>
+      <img src="https://raw.githubusercontent.com/amir-abdi/docgpt/main/assets/sorts.gif" align="="right" width=49%>
 </p>
 
 
