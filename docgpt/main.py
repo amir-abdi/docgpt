@@ -50,9 +50,11 @@ def get_source_code(source: Optional[str]) -> Tuple[str, str]:
 
         return source_code, os.path.curdir
 
-    print_error("No source provided.")
+    print_error("No source provided.\n")
     print_warning(
-        "You can pass the source code in 3 ways:\n"
+        "Common use cases:\n"
+        ">> docgpt --source <source.py> --target <target.py>\n"
+        ">> docgpt --source <source.py> --overwrite\n"
         ">> docgpt --source <source.py>\n"
         ">> docgpt <source.py>\n"
         ">> cat <source.py> | docgpt",
@@ -105,7 +107,7 @@ def main(
     target: Optional[str] = None,
     api_key: Optional[str] = None,
     overwrite: bool = False,
-) -> int:  # pragma: no cover
+) -> int:
     """DocGPT is a CLI tool to automatically document Python source code.
 
     Args:
@@ -139,6 +141,9 @@ def main(
     # Get target path for output
     target_path = get_target(source_path=source_path, overwrite=overwrite, target=target)
 
+    print(f"source: {source_path}")
+    print(f"target: {target_path}")
+
     # Invoke GPT-3 to generate documentation
     print("Waiting for GPT3 to respond...")
     completed_text = model.invoke(prompt, estimated_tokens)
@@ -153,9 +158,19 @@ def main(
 def cli():
     """Command line interface for docgpt."""
     if len(sys.argv) >= 2:
+
+        # First arg as --source
+        new_argv = sys.argv[1:]
         if not sys.argv[1].startswith("--"):
             new_argv = ["--source"] + sys.argv[1:]
-            sys.exit(CLI(main, args=new_argv))
+
+        # --overwrite as store true
+        if '--overwrite' in new_argv:
+            overwrite_i = new_argv.index('--overwrite')
+            if overwrite_i == len(new_argv) - 1 or new_argv[overwrite_i+1].startswith('--'):
+                new_argv += ['true']
+
+        sys.exit(CLI(main, args=new_argv))
 
     sys.exit(CLI(main))
 

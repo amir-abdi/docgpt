@@ -29,23 +29,22 @@ def print_error(msg: str, end: Optional[str] = None):
 def wlf():
     """Print the 'Woman Life Freedom' message in cyan."""
     cyan = code_to_chars(36)
+    yellow = code_to_chars(33)
     return dedent(
         f"""{cyan}
-     __          __                               _       _   __        ______                     _                   
-     \ \        / /                              | |     (_) / _|      |  ____|                   | |                  
-      \ \  /\  / /___   _ __ ___    __ _  _ __   | |      _ | |_  ___  | |__  _ __  ___   ___   __| |  ___   _ __ ___  
-       \ \/  \/ // _ \ | '_ ` _ \  / _` || '_ \  | |     | ||  _|/ _ \ |  __|| '__|/ _ \ / _ \ / _` | / _ \ | '_ ` _ \ 
-        \  /\  /| (_) || | | | | || (_| || | | | | |____ | || | |  __/ | |   | |  |  __/|  __/| (_| || (_) || | | | | |
-         \/  \/  \___/ |_| |_| |_| \__,_||_| |_| |______||_||_|  \___| |_|   |_|   \___| \___| \__,_| \___/ |_| |_| |_|
-                                                                                                                       
-      Global action in solidarity with Iranians who are courageously demonstrating peacefully for their human rights.
-    
-    Timeline of Events:\t\thttps://irantimelines.com/
-    #MahsaAmini on Twitter:\thttps://twitter.com/search/?q=MahsaAmini
-    Song (Baraye by Shervin):\thttps://www.youtube.com/watch?v=BGesf7QcREk    
+        ███████████████████████████████████████████████████████████████████████████████████████████████████████████
+        █▄─█▀▀▀█─▄█─▄▄─█▄─▀█▀─▄██▀▄─██▄─▀█▄─▄███▄─▄███▄─▄█▄─▄▄─█▄─▄▄─███▄─▄▄─█▄─▄▄▀█▄─▄▄─█▄─▄▄─█▄─▄▄▀█─▄▄─█▄─▀█▀─▄█
+        ██─█─█─█─██─██─██─█▄█─███─▀─███─█▄▀─█████─██▀██─███─▄████─▄█▀████─▄████─▄─▄██─▄█▀██─▄█▀██─██─█─██─██─█▄█─██
+        ▀▀▄▄▄▀▄▄▄▀▀▄▄▄▄▀▄▄▄▀▄▄▄▀▄▄▀▄▄▀▄▄▄▀▀▄▄▀▀▀▄▄▄▄▄▀▄▄▄▀▄▄▄▀▀▀▄▄▄▄▄▀▀▀▄▄▄▀▀▀▄▄▀▄▄▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▄▀▀▄▄▄▄▀▄▄▄▀▄▄▄▀
+    Global action in solidarity with {yellow}Courageous People of Iran{cyan} who are demonstrating peacefully for their human rights.
+
+        Timeline of Events:\t\thttps://irantimelines.com/
+        #MahsaAmini on Twitter:\t\thttps://twitter.com/search/?q=MahsaAmini
+        Song (Baraye by Shervin):\thttps://www.youtube.com/watch?v=BGesf7QcREk
     {reset()}
     """
     )
+
 
 
 def get_user_yes_no_input() -> bool:

@@ -13,7 +13,7 @@ logger.setLevel(logging.DEBUG)
 S_TAG = "<script>"
 ENDS_TAG = "</script>"
 MAX_PROMPT_LENGTH_THRESHOLD = 1800
-TOKEN_ESTIMATE_COEFF = 1.27
+TOKEN_ESTIMATE_COEFF = 1.28
 
 
 # Model constants
