@@ -46,7 +46,6 @@ def wlf():
     )
 
 
-
 def get_user_yes_no_input() -> bool:
     """Get user input and return a boolean value based on the input."""
     user_input = input()

@@ -91,6 +91,12 @@ def validate_args(source: Optional[str], target: Optional[str], overwrite: bool)
         print_error("The '--source' flag is required when '--overwrite' flag is used.")
         return False
 
+    if overwrite and target is not None:
+        print_error(
+            "The '-overwrite' and '--target' flags are mutually exclusive, use either, not both."
+        )
+        return False
+
     # Check if source and target are not specified
     if source is None and target is None:
         print_error(
@@ -165,10 +171,10 @@ def cli():
             new_argv = ["--source"] + sys.argv[1:]
 
         # --overwrite as store true
-        if '--overwrite' in new_argv:
-            overwrite_i = new_argv.index('--overwrite')
-            if overwrite_i == len(new_argv) - 1 or new_argv[overwrite_i+1].startswith('--'):
-                new_argv += ['true']
+        if "--overwrite" in new_argv:
+            overwrite_i = new_argv.index("--overwrite")
+            if overwrite_i == len(new_argv) - 1 or new_argv[overwrite_i + 1].startswith("--"):
+                new_argv.insert(overwrite_i + 1, "true")
 
         sys.exit(CLI(main, args=new_argv))
 
