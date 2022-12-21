@@ -10,7 +10,7 @@ from docgpt import model
 from docgpt.api_key import cache_api_key, get_api_key
 from docgpt.io import print_error, print_warning, wlf
 
-DEFAULT_TARGET_APPEND = "docgpt.py"
+DEFAULT_TARGET_APPEND = "docgpt"
 MIN_SOURCE_LENGTH = 40
 
 
@@ -19,22 +19,21 @@ def get_source_code(source: Optional[str]) -> Tuple[str, str]:
     if source is not None:
 
         # source = path to file
-        if source.endswith(".py"):
-            if not os.path.exists(source):
-                print_error(f"Source file does not exist at '{source}'")
-                return "", ""
+        if not os.path.exists(source):
+            print_error(f"Source file does not exist at '{source}'")
+            return "", ""
 
-            if os.path.isdir(source):
-                print_warning(
-                    "Current version of DocGPT does not support directory inputs. "
-                    "If you need the feature to recursively convert all python files in a "
-                    "directory, please submit an issue: "
-                    "https://github.com/amir-abdi/docgpt/issues"
-                )
-                return "", ""
+        if os.path.isdir(source):
+            print_warning(
+                "Current version of DocGPT does not support directory inputs. "
+                "If you need the feature to recursively convert all source files in a "
+                "directory, please submit an issue: "
+                "https://github.com/amir-abdi/docgpt/issues"
+            )
+            return "", ""
 
-            with open(source, mode="r", encoding="utf-8") as file:
-                return file.read().strip(), source
+        with open(source, mode="r", encoding="utf-8") as file:
+            return file.read().strip(), source
 
     # try piped input
     if not sys.stdin.isatty():
@@ -53,11 +52,11 @@ def get_source_code(source: Optional[str]) -> Tuple[str, str]:
     print_error("No source provided.\n")
     print_warning(
         "Common use cases:\n"
-        ">> docgpt --source <source.py> --target <target.py>\n"
-        ">> docgpt --source <source.py> --overwrite\n"
-        ">> docgpt --source <source.py>\n"
-        ">> docgpt <source.py>\n"
-        ">> cat <source.py> | docgpt",
+        ">> docgpt --source <source> --target <target>\n"
+        ">> docgpt --source <source> --overwrite\n"
+        ">> docgpt --source <source>\n"
+        ">> docgpt <source>\n"
+        ">> cat <source> | docgpt",
     )
     return "", ""
 
@@ -69,17 +68,18 @@ def get_target(source_path: str, overwrite: bool, target: Optional[str]):
         return source_path
 
     # Get `target_path` from the `source_path`
+    source_path_wo_ext, ext = os.path.splitext(source_path)
     if not target:
-        target_path = f"{os.path.splitext(source_path)[0]}_{DEFAULT_TARGET_APPEND}"
+        target_path = f"{source_path_wo_ext}_{DEFAULT_TARGET_APPEND}{ext}"
         print_warning(f"No '--target' specified; will store the documented file at '{target_path}'")
 
     # `target_path` is given by the user
     else:
         target_path = target
 
-    # Append .py to the target path if it is not already present
-    if not target_path.endswith(".py"):
-        target_path += ".py"
+    # Append extension to the target path if it is not already present
+    if not target_path.endswith(ext):
+        target_path += ext
 
     return target_path
 
@@ -114,7 +114,7 @@ def main(
     api_key: Optional[str] = None,
     overwrite: bool = False,
 ) -> int:
-    """DocGPT is a CLI tool to automatically document Python source code.
+    """DocGPT is a CLI tool to automatically document source code.
 
     Args:
         source: source code or path to source file.
