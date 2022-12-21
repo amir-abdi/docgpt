@@ -15,8 +15,6 @@ Start by following [#MahsaAmini](https://twitter.com/search/?q=MahsaAmini) on Tw
 DocGPT (`docgpt`) is a CLI tool that 
 automatically generates documentation for code. 
 
-**Supported Languages:** Python
-
 :point_right:
 All the in-code documentation of `docgpt` project are generated with `docgpt`! 
 So meta!
@@ -47,13 +45,13 @@ cached in `~/.docgpt` for future use.
 ## Usage
 ```bash
 # conventional use
-docgpt <source.py> --target <target.py>
+docgpt <source> --target <target>
 
 # piped
-cat <source.py> | docgpt --target <target.py>
+cat <source> | docgpt --target <target>
 
 # overwrite
-docgpt <source.py> --overwrite
+docgpt <source> --overwrite
 ```
 To see available options try `docgpt --help`
 
