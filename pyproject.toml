@@ -12,7 +12,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "docgpt"
-version = "0.1.1"
+version = "0.1.2"
 description = "Auto-generate documentation for code."
 readme = "README.md"
 authors = [
